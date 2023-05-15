@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:twithc_clone/screens/login_screen.dart';
 import 'package:twithc_clone/screens/onbording_screen.dart';
+import 'package:twithc_clone/screens/signup_screen.dart';
 import 'package:twithc_clone/utils/colors.dart';
 
 void main() {
@@ -32,6 +34,8 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         OnboardingScreen.routeName: (context) => const OnboardingScreen(),
+        LoginScreen.routeName: (context) => const LoginScreen(),
+        SignUpScreen.routeName: (context) => const SignUpScreen(),
       },
       home: const OnboardingScreen(),
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:twithc_clone/screens/login_screen.dart';
+import 'package:twithc_clone/screens/signup_screen.dart';
 import 'package:twithc_clone/utils/size.dart';
 import 'package:twithc_clone/widgets/custom_button.dart';
 
@@ -32,12 +34,16 @@ class OnboardingScreen extends StatelessWidget {
             kHight20,
             CustomButton(
               text: 'Log in',
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, LoginScreen.routeName);
+              },
             ),
             kHight10,
             CustomButton(
               text: 'Sign Up',
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, SignUpScreen.routeName);
+              },
             ),
           ],
         ),
