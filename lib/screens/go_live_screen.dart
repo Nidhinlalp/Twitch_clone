@@ -1,6 +1,8 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:twithc_clone/resources/firestrore_methods.dart';
+import 'package:twithc_clone/screens/brodcast_screen.dart';
 import 'package:twithc_clone/utils/colors.dart';
 import 'package:twithc_clone/utils/size.dart';
 import 'package:twithc_clone/utils/utils.dart';
@@ -21,6 +23,18 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
   void dispose() {
     _titelController.dispose();
     super.dispose();
+  }
+
+  void goLive() async {
+    String channelId = await FirestoreMethods().startLiveStream(
+      context,
+      _titelController.text,
+      image,
+    );
+    if (channelId.isNotEmpty && context.mounted) {
+      showSnackBar(context, 'Live has Start successfully');
+      Navigator.pushNamed(context, BrodCastScreen.routeName);
+    }
   }
 
   @override
@@ -118,7 +132,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 0),
               child: CustomButton(
                 text: 'Go Live',
-                onTap: () {},
+                onTap: goLive,
               ),
             ),
           ],
