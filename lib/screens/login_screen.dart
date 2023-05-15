@@ -3,6 +3,9 @@ import 'package:twithc_clone/utils/size.dart';
 import 'package:twithc_clone/widgets/custom_button.dart';
 import 'package:twithc_clone/widgets/custom_textfield.dart';
 
+import '../resources/auth_methods.dart';
+import 'home_screen.dart';
+
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
   const LoginScreen({super.key});
@@ -14,7 +17,19 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _userNameController = TextEditingController();
+
+  final AuthMethods _authMethods = AuthMethods();
+
+  void loginUser() async {
+    bool res = await _authMethods.loginUser(
+      context,
+      _emailController.text,
+      _passwordController.text,
+    );
+    if (res && context.mounted) {
+      Navigator.pushReplacementNamed(context, HomeScreen.routeName);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
               kHight20,
               CustomButton(
                 text: 'Login',
-                onTap: () {},
+                onTap: loginUser,
               ),
             ],
           ),

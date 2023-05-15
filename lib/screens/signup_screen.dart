@@ -28,7 +28,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _passwordController.text,
     );
     if (res && context.mounted) {
-      Navigator.pushNamed(context, HomeScreen.routeName);
+      Navigator.pushReplacementNamed(context, HomeScreen.routeName);
     }
   }
 
