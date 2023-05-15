@@ -20,6 +20,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _userNameController = TextEditingController();
   final AuthMethods _authMethods = AuthMethods();
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _userNameController.dispose();
+    super.dispose();
+  }
+
   void signUpUser() async {
     bool res = await _authMethods.signUpUser(
       context,
