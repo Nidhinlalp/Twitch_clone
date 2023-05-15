@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:twithc_clone/resources/auth_methods.dart';
 import 'package:twithc_clone/utils/size.dart';
 import 'package:twithc_clone/widgets/custom_button.dart';
 import 'package:twithc_clone/widgets/custom_textfield.dart';
+
+import 'home_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const String routeName = '/signup';
@@ -15,6 +18,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _userNameController = TextEditingController();
+  final AuthMethods _authMethods = AuthMethods();
+
+  void signUpUser() async {
+    bool res = await _authMethods.signUpUser(
+      context,
+      _emailController.text,
+      _userNameController.text,
+      _passwordController.text,
+    );
+    if (res && context.mounted) {
+      Navigator.pushNamed(context, HomeScreen.routeName);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +91,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               kHight20,
               CustomButton(
                 text: 'Sign Up',
-                onTap: () {},
+                onTap: signUpUser,
               ),
             ],
           ),

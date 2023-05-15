@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:twithc_clone/providers/user_provider.dart';
+import 'package:twithc_clone/screens/home_screen.dart';
 import 'package:twithc_clone/screens/login_screen.dart';
 import 'package:twithc_clone/screens/onbording_screen.dart';
 import 'package:twithc_clone/screens/signup_screen.dart';
@@ -20,30 +23,38 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData.light().copyWith(
-        scaffoldBackgroundColor: backgroundColor,
-        appBarTheme: AppBarTheme.of(context).copyWith(
-          backgroundColor: backgroundColor,
-          elevation: 0,
-          titleTextStyle: const TextStyle(
-            color: primaryColor,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-          iconTheme: const IconThemeData(
-            color: primaryColor,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => UserProvider(),
+        )
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData.light().copyWith(
+          scaffoldBackgroundColor: backgroundColor,
+          appBarTheme: AppBarTheme.of(context).copyWith(
+            backgroundColor: backgroundColor,
+            elevation: 0,
+            titleTextStyle: const TextStyle(
+              color: primaryColor,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+            iconTheme: const IconThemeData(
+              color: primaryColor,
+            ),
           ),
         ),
+        routes: {
+          OnboardingScreen.routeName: (context) => const OnboardingScreen(),
+          LoginScreen.routeName: (context) => const LoginScreen(),
+          SignUpScreen.routeName: (context) => const SignUpScreen(),
+          HomeScreen.routeName: (context) => const HomeScreen(),
+        },
+        home: const OnboardingScreen(),
       ),
-      routes: {
-        OnboardingScreen.routeName: (context) => const OnboardingScreen(),
-        LoginScreen.routeName: (context) => const LoginScreen(),
-        SignUpScreen.routeName: (context) => const SignUpScreen(),
-      },
-      home: const OnboardingScreen(),
     );
   }
 }
