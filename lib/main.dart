@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:twithc_clone/providers/user_provider.dart';
 import 'package:twithc_clone/resources/auth_methods.dart';
-import 'package:twithc_clone/screens/brodcast_screen.dart';
 import 'package:twithc_clone/screens/home_screen.dart';
 import 'package:twithc_clone/screens/login_screen.dart';
 import 'package:twithc_clone/screens/onbording_screen.dart';
@@ -57,7 +56,6 @@ class MyApp extends StatelessWidget {
           LoginScreen.routeName: (context) => const LoginScreen(),
           SignUpScreen.routeName: (context) => const SignUpScreen(),
           HomeScreen.routeName: (context) => const HomeScreen(),
-          BrodCastScreen.routeName: (context) => const BrodCastScreen(),
         },
         home: FutureBuilder(
           future: AuthMethods()
