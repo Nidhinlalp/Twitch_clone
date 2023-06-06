@@ -42,84 +42,18 @@ class _FeedScreenState extends State<FeedScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const LoadingIndicator();
-                }
-
-                return Expanded(
-                  child: ResposiveLatout(
-                    desktopBody: GridView.builder(
-                      itemCount: snapshot.data.docs.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                      ),
-                      itemBuilder: (context, index) {
-                        LiveStream post = LiveStream.fromMap(
-                            snapshot.data.docs[index].data());
-                        return InkWell(
-                          onTap: () async {
-                            await FirestoreMethods()
-                                .updateViewCount(post.channelId, true);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => BrodCastScreen(
-                                  isBroadcaster: false,
-                                  channelId: post.channelId,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 10,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: size.height * 0.35,
-                                  child: Image.network(
-                                    post.image,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      post.username,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    Text(
-                                      post.title,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text('${post.viewers} watching'),
-                                    Text(
-                                      'Started ${timeago.format(post.startedAt.toDate())}',
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    mobileBody: ListView.builder(
+                } else if (snapshot.hasData) {
+                  return Expanded(
+                    child: ResposiveLatout(
+                      desktopBody: GridView.builder(
                         itemCount: snapshot.data.docs.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                        ),
                         itemBuilder: (context, index) {
                           LiveStream post = LiveStream.fromMap(
                               snapshot.data.docs[index].data());
-
                           return InkWell(
                             onTap: () async {
                               await FirestoreMethods()
@@ -134,14 +68,19 @@ class _FeedScreenState extends State<FeedScreen> {
                               );
                             },
                             child: Container(
-                              height: size.height * 0.1,
-                              margin: const EdgeInsets.symmetric(vertical: 10),
-                              child: Row(
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 10,
+                              ),
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AspectRatio(
-                                    aspectRatio: 16 / 9,
-                                    child: Image.network(post.image),
+                                  SizedBox(
+                                    height: size.height * 0.35,
+                                    child: Image.network(
+                                      post.image,
+                                      fit: BoxFit.contain,
+                                    ),
                                   ),
                                   const SizedBox(width: 10),
                                   Column(
@@ -169,19 +108,90 @@ class _FeedScreenState extends State<FeedScreen> {
                                       ),
                                     ],
                                   ),
-                                  IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.more_vert,
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
                           );
-                        }),
-                  ),
-                );
+                        },
+                      ),
+                      mobileBody: ListView.builder(
+                          itemCount: snapshot.data.docs.length,
+                          itemBuilder: (context, index) {
+                            LiveStream post = LiveStream.fromMap(
+                                snapshot.data.docs[index].data());
+
+                            return InkWell(
+                              onTap: () async {
+                                await FirestoreMethods()
+                                    .updateViewCount(post.channelId, true);
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => BrodCastScreen(
+                                      isBroadcaster: false,
+                                      channelId: post.channelId,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: size.height * 0.1,
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AspectRatio(
+                                      aspectRatio: 16 / 9,
+                                      child: Image.network(post.image),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          post.username,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                        Text(
+                                          post.title,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text('${post.viewers} watching'),
+                                        Text(
+                                          'Started ${timeago.format(post.startedAt.toDate())}',
+                                        ),
+                                      ],
+                                    ),
+                                    IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                        Icons.more_vert,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return const Center(
+                    child: Text('un Expected Error Ocured'),
+                  );
+                } else {
+                  return const Center(
+                    child: Text('Network Error Ocured'),
+                  );
+                }
               },
             ),
           ],

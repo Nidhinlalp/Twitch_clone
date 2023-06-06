@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:twithc_clone/models/users.dart';
 import 'package:twithc_clone/providers/user_provider.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalview;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteview;
@@ -189,6 +188,7 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).user;
+
     return WillPopScope(
       onWillPop: () async {
         await _leaveChannel();
@@ -232,16 +232,16 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
                                   : _startScreenShare,
                               child: Text(
                                 isScreenSharing
-                                    ? 'Stop Screen Share'
-                                    : 'Screen Share',
+                                    ? 'Stop ScreenSharing'
+                                    : 'Start Screensharing',
                               ),
-                            )
+                            ),
                           ],
                         ),
                     ],
                   ),
                 ),
-                Chat(channelId: widget.channelId)
+                Chat(channelId: widget.channelId),
               ],
             ),
             mobileBody: Column(
@@ -259,14 +259,14 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
                       InkWell(
                         onTap: onToggleMute,
                         child: Text(isMuted ? 'Unmute' : 'Mute'),
-                      )
+                      ),
                     ],
                   ),
                 Expanded(
                   child: Chat(
                     channelId: widget.channelId,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -275,7 +275,7 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
     );
   }
 
-  _renderVideo(User user, isScreenSharing) {
+  _renderVideo(user, isScreenSharing) {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: "${user.uid}${user.username}" == widget.channelId
