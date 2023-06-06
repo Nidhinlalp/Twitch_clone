@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:twithc_clone/resources/auth_methods.dart';
+import 'package:twithc_clone/responsive/responsive.dart';
 import 'package:twithc_clone/utils/size.dart';
 import 'package:twithc_clone/widgets/custom_button.dart';
 import 'package:twithc_clone/widgets/custom_textfield.dart';
@@ -57,61 +58,63 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
       body: _isLoading
           ? const LoadingIndicator()
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: size.height * 0.1),
-                    const Text(
-                      'Email',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+          : Responsive(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: size.height * 0.1),
+                      const Text(
+                        'Email',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: CustomTextField(
-                        controller: _emailController,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: CustomTextField(
+                          controller: _emailController,
+                        ),
                       ),
-                    ),
-                    kHight20,
-                    const Text(
-                      'Username',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                      kHight20,
+                      const Text(
+                        'Username',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8.0,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8.0,
+                        ),
+                        child: CustomTextField(
+                          controller: _userNameController,
+                        ),
                       ),
-                      child: CustomTextField(
-                        controller: _userNameController,
+                      kHight20,
+                      const Text(
+                        'Password',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    kHight20,
-                    const Text(
-                      'Password',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8.0,
+                        ),
+                        child: CustomTextField(
+                          controller: _passwordController,
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8.0,
+                      kHight20,
+                      CustomButton(
+                        text: 'Sign Up',
+                        onTap: signUpUser,
                       ),
-                      child: CustomTextField(
-                        controller: _passwordController,
-                      ),
-                    ),
-                    kHight20,
-                    CustomButton(
-                      text: 'Sign Up',
-                      onTap: signUpUser,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

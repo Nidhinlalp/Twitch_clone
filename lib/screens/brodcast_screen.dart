@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +10,11 @@ import 'package:twithc_clone/providers/user_provider.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalview;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteview;
 import 'package:twithc_clone/resources/firestrore_methods.dart';
+import 'package:twithc_clone/responsive/responsive_layout.dart';
+import 'package:twithc_clone/screens/chat.dart';
 import 'package:twithc_clone/screens/home_screen.dart';
 import '../config/app_id.dart';
+import 'package:http/http.dart' as http;
 
 class BrodCastScreen extends StatefulWidget {
   final bool isBroadcaster;
@@ -27,6 +32,8 @@ class BrodCastScreen extends StatefulWidget {
 class _BrodCastScreenState extends State<BrodCastScreen> {
   late final RtcEngine _engine;
   List<int> remoteUid = [];
+  bool switchCamara = true;
+  bool isMuted = false;
   @override
   void initState() {
     super.initState();
@@ -47,13 +54,33 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
     _joinChannel();
   }
 
+  String baseUrl = "https://twitch-6dai.onrender.com";
+
+  String? token;
+
+  Future<void> getToken() async {
+    final res = await http.get(
+      Uri.parse(
+          '$baseUrl/rtc/${widget.channelId}/publisher/userAccount/${Provider.of<UserProvider>(context, listen: false).user.uid}/'),
+    );
+    if (res.statusCode == 200) {
+      setState(() {
+        token = res.body;
+        token = jsonDecode(token!)['rtcToken'];
+      });
+    } else {
+      debugPrint('Failed to fetch the token');
+    }
+  }
+
   Future<void> _joinChannel() async {
+    await getToken();
     if (defaultTargetPlatform == TargetPlatform.android) {
       await [Permission.microphone, Permission.camera].request();
     }
     await _engine.joinChannelWithUserAccount(
-      tempToken,
-      'test123',
+      token,
+      widget.channelId,
       Provider.of<UserProvider>(context, listen: false).user.uid,
     );
   }
@@ -81,6 +108,10 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
           remoteUid.clear();
         });
       },
+      tokenPrivilegeWillExpire: (token) async {
+        await getToken();
+        await _engine.renewToken(token);
+      },
     ));
   }
 
@@ -95,6 +126,23 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
     Navigator.pushReplacementNamed(context, HomeScreen.routeName);
   }
 
+  void _switchCamera() {
+    _engine.switchCamera().then((value) {
+      setState(() {
+        switchCamara = !switchCamara;
+      });
+    }).catchError((onError) {
+      debugPrint("swithcamera $onError");
+    });
+  }
+
+  void onToggleMute() async {
+    setState(() {
+      isMuted = !isMuted;
+    });
+    await _engine.muteLocalAudioStream(isMuted);
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).user;
@@ -105,11 +153,64 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
       },
       child: Scaffold(
         body: Padding(
-          padding: EdgeInsets.all(8),
-          child: Column(
-            children: [
-              _renderVideo(user),
-            ],
+          padding: const EdgeInsets.all(8),
+          child: ResposiveLatout(
+            desktopBody: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      _renderVideo(user),
+                      if ("${user.uid}${user.username}" == widget.channelId)
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            InkWell(
+                              onTap: _switchCamera,
+                              child: const Text('Switch Camera'),
+                            ),
+                            InkWell(
+                              onTap: onToggleMute,
+                              child: Text(isMuted ? 'Unmute' : 'Mute'),
+                            ),
+                            InkWell(
+                              onTap: onToggleMute,
+                              child: Text('Screen Share'),
+                            )
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                Chat(channelId: widget.channelId)
+              ],
+            ),
+            mobileBody: Column(
+              children: [
+                _renderVideo(user),
+                if ("${user.uid}${user.username}" == widget.channelId)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        onTap: _switchCamera,
+                        child: const Text('Switch Camera'),
+                      ),
+                      InkWell(
+                        onTap: onToggleMute,
+                        child: Text(isMuted ? 'Unmute' : 'Mute'),
+                      )
+                    ],
+                  ),
+                Expanded(
+                  child: Chat(
+                    channelId: widget.channelId,
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -120,7 +221,7 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: "${user.uid}${user.username}" == widget.channelId
-          ? RtcLocalview.SurfaceView(
+          ? const RtcLocalview.SurfaceView(
               zOrderMediaOverlay: true,
               zOrderOnTop: true,
             )
