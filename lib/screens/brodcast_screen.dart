@@ -13,6 +13,7 @@ import 'package:twithc_clone/resources/firestrore_methods.dart';
 import 'package:twithc_clone/responsive/responsive_layout.dart';
 import 'package:twithc_clone/screens/chat.dart';
 import 'package:twithc_clone/screens/home_screen.dart';
+import 'package:twithc_clone/widgets/custom_button.dart';
 import '../config/app_id.dart';
 import 'package:http/http.dart' as http;
 
@@ -152,6 +153,15 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
         return Future.value(true);
       },
       child: Scaffold(
+        bottomNavigationBar: widget.isBroadcaster
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: CustomButton(
+                  text: 'End Stream',
+                  onTap: _leaveChannel,
+                ),
+              )
+            : null,
         body: Padding(
           padding: const EdgeInsets.all(8),
           child: ResposiveLatout(
