@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:flutter/foundation.dart';
@@ -35,6 +37,7 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
   List<int> remoteUid = [];
   bool switchCamara = true;
   bool isMuted = false;
+  bool isScreenSharing = false;
   @override
   void initState() {
     super.initState();
@@ -116,6 +119,45 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
     ));
   }
 
+  _startScreenShare() async {
+    final helper = await _engine.getScreenShareHelper(
+      appGroup: kIsWeb || Platform.isWindows ? null : "io.agora",
+    );
+    await helper.disableAudio();
+    await helper.enableVideo();
+    await helper.setChannelProfile(ChannelProfile.LiveBroadcasting);
+    await helper.setClientRole(ClientRole.Broadcaster);
+    var windowId = 0;
+    var random = Random();
+    if (!kIsWeb &&
+        (Platform.isWindows || Platform.isMacOS || Platform.isAndroid)) {
+      final windows = _engine.enumerateWindows();
+      if (windows.isNotEmpty) {
+        final index = random.nextInt(windows.length - 1);
+        debugPrint('ScreenSharing window with index: $index');
+        windowId = windows[index].id;
+      }
+    }
+    await helper.startScreenCaptureByWindowId(windowId);
+
+    setState(() {
+      isScreenSharing = true;
+    });
+    await helper.joinChannelWithUserAccount(token, widget.channelId,
+        Provider.of<UserProvider>(context, listen: false).user.uid);
+  }
+
+  _stopScreenShare() async {
+    final helper = await _engine.getScreenShareHelper();
+    await helper.destroy().then((value) {
+      setState(() {
+        isScreenSharing = false;
+      });
+    }).catchError((onError) {
+      debugPrint('StopScreenShare $onError');
+    });
+  }
+
   _leaveChannel() async {
     await _engine.leaveChannel();
     if ('${Provider.of<UserProvider>(context, listen: false).user.uid}${Provider.of<UserProvider>(context, listen: false).user.username}' ==
@@ -170,7 +212,7 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
                 Expanded(
                   child: Column(
                     children: [
-                      _renderVideo(user),
+                      _renderVideo(user, isScreenSharing),
                       if ("${user.uid}${user.username}" == widget.channelId)
                         Column(
                           mainAxisSize: MainAxisSize.min,
@@ -185,8 +227,14 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
                               child: Text(isMuted ? 'Unmute' : 'Mute'),
                             ),
                             InkWell(
-                              onTap: onToggleMute,
-                              child: Text('Screen Share'),
+                              onTap: isScreenSharing
+                                  ? _stopScreenShare
+                                  : _startScreenShare,
+                              child: Text(
+                                isScreenSharing
+                                    ? 'Stop Screen Share'
+                                    : 'Screen Share',
+                              ),
                             )
                           ],
                         ),
@@ -198,7 +246,7 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
             ),
             mobileBody: Column(
               children: [
-                _renderVideo(user),
+                _renderVideo(user, isScreenSharing),
                 if ("${user.uid}${user.username}" == widget.channelId)
                   Column(
                     mainAxisSize: MainAxisSize.min,
@@ -227,25 +275,33 @@ class _BrodCastScreenState extends State<BrodCastScreen> {
     );
   }
 
-  _renderVideo(User user) {
+  _renderVideo(User user, isScreenSharing) {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: "${user.uid}${user.username}" == widget.channelId
-          ? const RtcLocalview.SurfaceView(
-              zOrderMediaOverlay: true,
-              zOrderOnTop: true,
-            )
-          : remoteUid.isNotEmpty
+          ? isScreenSharing
               ? kIsWeb
-                  ? RtcRemoteview.SurfaceView(
-                      uid: remoteUid[0],
-                      channelId: widget.channelId,
-                    )
-                  : RtcRemoteview.TextureView(
-                      uid: remoteUid[0],
-                      channelId: widget.channelId,
-                    )
-              : Container(),
+                  ? const RtcLocalview.SurfaceView.screenShare()
+                  : const RtcLocalview.TextureView.screenShare()
+              : const RtcLocalview.SurfaceView(
+                  zOrderMediaOverlay: true,
+                  zOrderOnTop: true,
+                )
+          : isScreenSharing
+              ? kIsWeb
+                  ? const RtcLocalview.SurfaceView.screenShare()
+                  : const RtcLocalview.TextureView.screenShare()
+              : remoteUid.isNotEmpty
+                  ? kIsWeb
+                      ? RtcRemoteview.SurfaceView(
+                          uid: remoteUid[0],
+                          channelId: widget.channelId,
+                        )
+                      : RtcRemoteview.TextureView(
+                          uid: remoteUid[0],
+                          channelId: widget.channelId,
+                        )
+                  : Container(),
     );
   }
 }
