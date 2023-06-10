@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'Twitch Clone',
         theme: ThemeData.light().copyWith(
           scaffoldBackgroundColor: backgroundColor,
           appBarTheme: AppBarTheme.of(context).copyWith(
